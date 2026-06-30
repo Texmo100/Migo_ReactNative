@@ -1,13 +1,15 @@
 import * as React from 'react';
 import {Text, View, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ActivityIndicator, useTheme } from 'react-native-paper';
+import { ActivityIndicator, useTheme, Button } from 'react-native-paper';
 import Fab from '../components/Fab';
 import CardItem from '../components/CardItem';
 
 import { fakeAnimeList } from '../types/fakeAnimes';
+import CustomModal from '../components/CustomModal';
+import CustomForm from '../components/CustomForm';
 
-const ListHeader = ({listCount}:any) => {
+const ListHeader = ({listCount}:any):React.ReactElement => {
     return(
         <View style={{height: 50, width: '100%', justifyContent: 'center', alignItems: 'flex-end'}}>
             <Text style={{color: 'white'}}>{listCount} {listCount === 1 ? 'Anime' : 'Animes'}</Text>
@@ -15,7 +17,7 @@ const ListHeader = ({listCount}:any) => {
     );
 };
 
-const ListFooter = () => {
+const ListFooter = ():React.ReactElement => {
     return(
         <View style={{height: 70, width: '100%', justifyContent: 'center', alignItems: 'center'}}>
             <Text style={{color: 'white'}}>Migo</Text>
@@ -23,10 +25,11 @@ const ListFooter = () => {
     );
 };
 
-const Animes = () => {
+const Animes = ():React.ReactElement => {
     const paperTheme = useTheme();
     const [animes, setAnimes] = React.useState<any[]>([]);
     const [loading, setLoading] = React.useState(true);
+    const [visible, setVisible] = React.useState(false);
 
     React.useEffect(() => {
         fetchData();
@@ -46,6 +49,9 @@ const Animes = () => {
         }
     };
 
+    const showModal = () => setVisible(true);
+    const hideModal = () => setVisible(false);
+
     if(loading){
         return (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -64,7 +70,12 @@ const Animes = () => {
                 keyExtractor={item => item.id.toString()}
                 ListFooterComponent={<ListFooter />}
             />
-            <Fab />
+
+            <CustomModal visible={visible} hideModal={hideModal}>
+                <CustomForm hideModal={hideModal} />
+            </CustomModal>
+
+            <Fab onPressFunction={showModal}/>
         </SafeAreaView>
     );
 };

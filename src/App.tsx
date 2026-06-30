@@ -10,7 +10,7 @@ import Mangas from './pages/Mangas';
 
 const Tab = createBottomTabNavigator();
 
-const RootTabs = () => {
+const RootTabs = ():React.ReactElement => {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -35,7 +35,7 @@ const RootTabs = () => {
   );
 }
 
-export default function App() {
+const App = ():React.ReactElement => {
   return (
     <NavigationContainer theme={DarkTheme}>
       <SafeAreaProvider>
@@ -44,3 +44,5 @@ export default function App() {
     </NavigationContainer>
   );
 }
+
+export default App;

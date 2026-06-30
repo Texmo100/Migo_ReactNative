@@ -2,14 +2,14 @@ import * as React from 'react';
 import { View } from 'react-native';
 import { Button, Card, Text, Chip, Divider } from 'react-native-paper';
 
-import { Genre, Theme } from '../types/migoTypes';
+import { Genre } from '../types/migoTypes';
 
-interface PropsTypes {
+interface Props {
   type: string,
   item: any,
 }
 
-const CardItem = ({type, item}: PropsTypes) => {
+const CardItem = ({type, item}: Props):React.ReactElement => {
   const [showActions, setShowActions] = React.useState(false);
   const toggleShowActions = () => setShowActions(!showActions);
 
@@ -57,13 +57,6 @@ const CardItem = ({type, item}: PropsTypes) => {
         <View style={{ display: 'flex', flexWrap: 'wrap', flexDirection: 'row', gap: 5, marginBottom: 10 }}>
             {
               item.genres.map((genre:Genre) => (<Chip key={genre.id} mode='outlined'>{genre.name}</Chip>))
-            }
-        </View>
-
-        <Text variant='labelLarge' style={{marginBottom: 5}}>Themes:</Text>
-        <View style={{ display: 'flex', flexWrap: 'wrap', flexDirection: 'row', gap: 5, marginBottom: 10 }}>
-            {
-              item.themes.map((theme:Theme) => (<Chip key={theme.id} mode='outlined'>{theme.name}</Chip>))
             }
         </View>
 

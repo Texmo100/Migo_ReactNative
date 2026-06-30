@@ -3,7 +3,7 @@ export interface Genre {
     name: string,
 }
 
-export interface Theme {
+export interface Demographic {
     id: number,
     name: string,
 }
@@ -16,7 +16,6 @@ export interface Anime {
     status: string,
     score: number,
     genres: Genre[],
-    themes: Theme[],
     demographic: string,
     addedAt: string,
     lastUpdate: string,
@@ -30,7 +29,6 @@ export interface Manga {
     status: string,
     score: number,
     genres: Genre[],
-    themes: Theme[],
     demographic: string,
     addedAt: string,
     lastUpdate: string,

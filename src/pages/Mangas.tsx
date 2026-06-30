@@ -7,7 +7,7 @@ import CardItem from '../components/CardItem';
 
 import { fakeMangaList } from '../types/fakeMangas';
 
-const ListHeader = ({listCount}:any) => {
+const ListHeader = ({listCount}:any):React.ReactElement => {
     return(
         <View style={{height: 50, width: '100%', justifyContent: 'center', alignItems: 'flex-end'}}>
             <Text style={{color: 'white'}}>{listCount} {listCount === 1 ? 'Manga' : 'Mangas'}</Text>
@@ -15,7 +15,7 @@ const ListHeader = ({listCount}:any) => {
     );
 };
 
-const ListFooter = () => {
+const ListFooter = ():React.ReactElement => {
     return(
         <View style={{height: 70, width: '100%', justifyContent: 'center', alignItems: 'center'}}>
             <Text style={{color: 'white'}}>Migo</Text>
@@ -23,7 +23,7 @@ const ListFooter = () => {
     );
 };
 
-const Mangas = () => {
+const Mangas = ():React.ReactElement => {
     const paperTheme = useTheme();
     const [mangas, setMangas] = React.useState<any[]>([]);
     const [loading, setLoading] = React.useState(true);

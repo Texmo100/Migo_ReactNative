@@ -2,11 +2,15 @@ import * as React from 'react';
 import { StyleSheet } from 'react-native';
 import { FAB } from 'react-native-paper';
 
-const Fab = () => (
+interface Props {
+  onPressFunction: () => void,
+}
+
+const Fab = ({onPressFunction}: Props):React.ReactElement => (
   <FAB
     icon="plus"
     style={styles.fab}
-    onPress={() => console.log('Pressed')}
+    onPress={() => onPressFunction()}
   />
 );
 
