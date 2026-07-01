@@ -16,7 +16,8 @@ export interface Anime {
     status: string,
     score: number,
     genres: Genre[],
-    demographic: string,
+    demographic: Demographic,
+    personalComments: string,
     addedAt: string,
     lastUpdate: string,
 }
@@ -29,7 +30,19 @@ export interface Manga {
     status: string,
     score: number,
     genres: Genre[],
-    demographic: string,
+    demographic: Demographic,
+    personalComments: string,
     addedAt: string,
     lastUpdate: string,
+}
+
+export interface DataInput {
+    title: string,
+    episodes: number,
+    seasonsVolumes: number,
+    status: string,
+    score: number,
+    genres: Genre[],
+    demographic: Demographic | undefined,
+    personalComments: string,
 }

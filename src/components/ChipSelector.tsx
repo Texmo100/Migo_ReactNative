@@ -6,10 +6,15 @@ interface Props {
     label: string,
     data: any[],
     mode: string,
+    chipSelectorHandler: (label:string, selectedChips: any[]) => void,
 }
 
-const ChipSelector = ({label, data, mode}: Props):React.ReactElement => {
+const ChipSelector = ({label, data, mode, chipSelectorHandler}: Props):React.ReactElement => {
     const [selectedChips, setSelectedChips] = React.useState<any[]>([]);
+
+    React.useEffect(()=> {
+        chipSelectorHandler(label, selectedChips);
+    }, [selectedChips]);
 
     const handleOnPressChip = (item:any): void => {
         if(mode == 'multiple') {
