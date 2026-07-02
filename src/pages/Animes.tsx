@@ -1,13 +1,14 @@
 import * as React from 'react';
 import {Text, View, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ActivityIndicator, useTheme, Button } from 'react-native-paper';
+import { ActivityIndicator, useTheme } from 'react-native-paper';
 import Fab from '../components/Fab';
 import CardItem from '../components/CardItem';
 
-import { fakeAnimeList } from '../types/fakeAnimes';
+import { fakeAnimeList } from '../types/fakeDatabase';
 import CustomModal from '../components/CustomModal';
 import CustomForm from '../components/CustomForm';
+import CustomDialog from '../components/CustomDialog';
 
 const ListHeader = ({listCount}:any):React.ReactElement => {
     return(
@@ -29,7 +30,10 @@ const Animes = ():React.ReactElement => {
     const paperTheme = useTheme();
     const [animes, setAnimes] = React.useState<any[]>([]);
     const [loading, setLoading] = React.useState(true);
-    const [visible, setVisible] = React.useState(false);
+    const [visibleModal, setVisibleModal] = React.useState(false);
+    const [visibleDialog, setVisibleDialog] = React.useState(false);
+    const [editingAnime, setEditingAnime] = React.useState(null);
+    const [deletingAnime, setDeletingAnime] = React.useState(null);
 
     React.useEffect(() => {
         fetchData();
@@ -49,8 +53,27 @@ const Animes = ():React.ReactElement => {
         }
     };
 
-    const showModal = () => setVisible(true);
-    const hideModal = () => setVisible(false);
+    const showModal = () => setVisibleModal(true);
+    const hideModal = () => setVisibleModal(false);
+    const showDialog = () => setVisibleDialog(true);
+    const hideDialog = () => setVisibleDialog(false);
+
+    const handleCreate = ():void => {
+        setEditingAnime(null);
+        setDeletingAnime(null);
+        showModal();
+    };
+
+    const handleEdit = (cardItem:any):void => {
+        setEditingAnime(cardItem);
+        showModal();
+    };
+
+    const handleDelete = (cardItem:any):void => {
+        setEditingAnime(null);
+        setDeletingAnime(cardItem);
+        showDialog();
+    };
 
     if(loading){
         return (
@@ -66,16 +89,18 @@ const Animes = ():React.ReactElement => {
             <FlatList
                 ListHeaderComponent={<ListHeader listCount={animes.length}/>}
                 data={animes}
-                renderItem={({ item }) => <CardItem type={'anime'} item={item}/>}
+                renderItem={({ item }) => <CardItem type={'anime'} item={item} handleEdit={handleEdit} handleDelete={handleDelete}/>}
                 keyExtractor={item => item.id.toString()}
                 ListFooterComponent={<ListFooter />}
             />
 
-            <CustomModal visible={visible} hideModal={hideModal}>
-                <CustomForm hideModal={hideModal} />
+            <CustomModal visible={visibleModal} hideModal={hideModal}>
+                <CustomForm hideModal={hideModal} type="anime" mode={editingAnime === null ? 'creation' : 'edition'} cardItem={editingAnime}/>
             </CustomModal>
 
-            <Fab onPressFunction={showModal}/>
+            <CustomDialog visible={visibleDialog} hideDialog={hideDialog} type="anime" itemToDelete={deletingAnime} />
+
+            <Fab onPressFunction={handleCreate}/>
         </SafeAreaView>
     );
 };

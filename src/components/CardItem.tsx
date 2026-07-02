@@ -5,13 +5,25 @@ import { Button, Card, Text, Chip, Divider } from 'react-native-paper';
 import { Genre } from '../types/migoTypes';
 
 interface Props {
-  type: string,
-  item: any,
+  type: string;
+  item: any;
+  handleEdit: (cardItem:any) => void;
+  handleDelete: (cardItem:any) => void;
 }
 
-const CardItem = ({type, item}: Props):React.ReactElement => {
+const CardItem = ({type, item, handleEdit, handleDelete}: Props):React.ReactElement => {
   const [showActions, setShowActions] = React.useState(false);
   const toggleShowActions = () => setShowActions(!showActions);
+
+  const cardHandleEditButton = ():void => {
+    handleEdit(item);
+    toggleShowActions();
+  };
+
+  const cardHandleDeleteButton = ():void => {
+    handleDelete(item);
+    toggleShowActions();
+  };
 
   return(
     <Card style={{ marginBottom: 10 }} onLongPress={toggleShowActions}>
@@ -24,24 +36,11 @@ const CardItem = ({type, item}: Props):React.ReactElement => {
             <Text variant='labelLarge' style={{marginRight: 5}}>Episodes:</Text>
             <Text variant='bodyMedium'>{item.episodes}</Text>
         </View>
-
-        {
-          type === 'anime'
-          ?
-          (
-            <View style={{ display: 'flex', flexDirection: 'row', marginBottom: 5}}>
-              <Text variant='labelLarge' style={{marginRight: 5}}>Seasons:</Text>
-              <Text variant='bodyMedium'>{item.seasons}</Text>
-            </View>
-          )
-          :
-          (
-            <View style={{ display: 'flex', flexDirection: 'row', marginBottom: 5}}>
-              <Text variant='labelLarge' style={{marginRight: 5}}>Volumes:</Text>
-              <Text variant='bodyMedium'>{item.volumes}</Text>
-            </View>
-          )
-        }
+        
+        <View style={{ display: 'flex', flexDirection: 'row', marginBottom: 5}}>
+          <Text variant='labelLarge' style={{marginRight: 5}}>{type === 'anime' ? 'Seasons:' : 'Volumes:'}</Text>
+          <Text variant='bodyMedium'>{item.seasonsVolumes}</Text>
+        </View>
         
         <View style={{ display: 'flex', flexDirection: 'row', marginBottom: 5}}>
             <Text variant='labelLarge' style={{marginRight: 5}}>Status:</Text>
@@ -62,7 +61,7 @@ const CardItem = ({type, item}: Props):React.ReactElement => {
 
         <Text variant='labelLarge' style={{marginBottom: 5}}>Demographic:</Text>
         <View style={{ display: 'flex', flexWrap: 'wrap', flexDirection: 'row', gap: 5, marginBottom: 10 }}>
-          <Chip mode='flat'>{item.demographic}</Chip>
+          <Chip mode='flat'>{item.demographic.name}</Chip>
         </View>
 
         <Divider />
@@ -83,8 +82,8 @@ const CardItem = ({type, item}: Props):React.ReactElement => {
           &&
           (
             <Card.Actions>
-              <Button>Edit</Button>
-              <Button>Delete</Button>
+              <Button onPress={() => cardHandleEditButton()}>Edit</Button>
+              <Button onPress={() => cardHandleDeleteButton()}>Delete</Button>
             </Card.Actions>
           )
         }

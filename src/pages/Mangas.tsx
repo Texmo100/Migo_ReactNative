@@ -5,7 +5,10 @@ import { ActivityIndicator, useTheme } from 'react-native-paper';
 import Fab from '../components/Fab';
 import CardItem from '../components/CardItem';
 
-import { fakeMangaList } from '../types/fakeMangas';
+import { fakeMangaList } from '../types/fakeDatabase';
+import CustomModal from '../components/CustomModal';
+import CustomForm from '../components/CustomForm';
+import CustomDialog from '../components/CustomDialog';
 
 const ListHeader = ({listCount}:any):React.ReactElement => {
     return(
@@ -27,6 +30,10 @@ const Mangas = ():React.ReactElement => {
     const paperTheme = useTheme();
     const [mangas, setMangas] = React.useState<any[]>([]);
     const [loading, setLoading] = React.useState(true);
+    const [visibleModal, setVisibleModal] = React.useState(false);
+    const [visibleDialog, setVisibleDialog] = React.useState(false);
+    const [editingManga, setEditingManga] = React.useState(null);
+    const [deletingManga, setDeletingManga] = React.useState(null);
 
     React.useEffect(() => {
         fetchData();
@@ -46,6 +53,28 @@ const Mangas = ():React.ReactElement => {
         }
     };
 
+    const showModal = () => setVisibleModal(true);
+    const hideModal = () => setVisibleModal(false);
+    const showDialog = () => setVisibleDialog(true);
+    const hideDialog = () => setVisibleDialog(false);
+
+    const handleCreate = ():void => {
+        setEditingManga(null);
+        setDeletingManga(null);
+        showModal();
+    };
+
+    const handleEdit = (cardItem:any):void => {
+        setEditingManga(cardItem);
+        showModal();
+    };
+
+    const handleDelete = (cardItem:any):void => {
+        setEditingManga(null);
+        setDeletingManga(cardItem);
+        showDialog();
+    };
+
     if(loading){
         return (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -60,11 +89,18 @@ const Mangas = ():React.ReactElement => {
             <FlatList
                 ListHeaderComponent={<ListHeader listCount={mangas.length}/>}
                 data={mangas}
-                renderItem={({ item }) => <CardItem type={'manga'} item={item}/>}
+                renderItem={({ item }) => <CardItem type={'manga'} item={item} handleEdit={handleEdit} handleDelete={handleDelete}/>}
                 keyExtractor={item => item.id.toString()}
                 ListFooterComponent={<ListFooter />}
             />
-            <Fab />
+
+            <CustomModal visible={visibleModal} hideModal={hideModal}>
+                <CustomForm hideModal={hideModal} type="manga" mode={editingManga === null ? 'creation' : 'edition'} cardItem={editingManga}/>
+            </CustomModal>
+
+            <CustomDialog visible={visibleDialog} hideDialog={hideDialog} type="manga" itemToDelete={deletingManga} />
+
+            <Fab onPressFunction={() => handleCreate()}/>
         </SafeAreaView>
     );
 };

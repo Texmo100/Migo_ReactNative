@@ -7,10 +7,20 @@ interface Props {
     data: any[],
     mode: string,
     chipSelectorHandler: (label:string, selectedChips: any[]) => void,
+    value: any,
 }
 
-const ChipSelector = ({label, data, mode, chipSelectorHandler}: Props):React.ReactElement => {
-    const [selectedChips, setSelectedChips] = React.useState<any[]>([]);
+const ChipSelector = ({label, data, mode, chipSelectorHandler, value}: Props):React.ReactElement => {
+    const [selectedChips, setSelectedChips] = React.useState<any[]>(
+        mode === 'multiple'
+        ? 
+        value 
+        : (value !== undefined ? [value] : [])
+    );
+
+    React.useEffect(() => {
+        console.log(selectedChips);
+    }, []);
 
     React.useEffect(()=> {
         chipSelectorHandler(label, selectedChips);
@@ -38,13 +48,22 @@ const ChipSelector = ({label, data, mode, chipSelectorHandler}: Props):React.Rea
         }
     };
 
+    const isChipInSelectedChips = (chip:any):any => {
+        if(selectedChips.length > 0) {
+            const selectedChipsList = selectedChips.filter(selectedChip => selectedChip.name === chip.name);
+            return selectedChipsList.length > 0 ? true : false;
+        }
+
+        return false;
+    };
+
     return(
         <React.Fragment>
             <Text variant='labelLarge' style={{marginBottom: 10}}>{label}</Text>
             <View style={styles.chipsContainer}>
                 {
                     data.map(item => (
-                        <Chip key={item.id} mode={selectedChips.includes(item) ? 'flat' : 'outlined'} onPress={() => handleOnPressChip(item)}>{item.name}</Chip>
+                        <Chip key={item.id} mode={isChipInSelectedChips(item) ? 'flat' : 'outlined'} onPress={() => handleOnPressChip(item)}>{item.name}</Chip>
                     ))
                 }
             </View>

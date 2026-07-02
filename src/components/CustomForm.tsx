@@ -3,27 +3,35 @@ import { View, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Appbar, Text, TextInput, SegmentedButtons, Button, HelperText } from 'react-native-paper';
 
-import { DataInput } from '../types/migoTypes';
 import ChipSelector from './ChipSelector';
 
 import { fakeGenreList } from '../types/fakeGenres';
 import { fakeDemographicList } from '../types/fakeDemographics';
 
+import { fakeAnimeList, fakeMangaList } from '../types/fakeDatabase';
+
+import { AnimeManga } from '../types/migoTypes';
+
 interface Props {
     hideModal: () => void,
+    type: string,
+    mode: string,
+    cardItem: any,
 }
 
-const CustomForm = ({hideModal}:Props):React.ReactElement => {
-    const [formData, setFormData] = React.useState<DataInput>({
-        title: '',
-        episodes: 0,
-        seasonsVolumes: 0,
-        status: '',
-        score: 0,
-        genres: [],
-        demographic: undefined,
-        personalComments: '',
-    });
+const initialFormState = {
+    title: '',
+    episodes: 0,
+    seasonsVolumes: 0,
+    status: '',
+    score: 0,
+    genres: [],
+    demographic: {} as AnimeManga,
+    personalComments: '',
+};
+
+const CustomForm = ({hideModal, type, mode, cardItem}:Props):React.ReactElement => {
+    const [formData, setFormData] = React.useState<any>(mode === 'edition' && cardItem ? cardItem : initialFormState);
     const [errorInForm, setErrorInForm] = React.useState(false);
 
     const handleSubmit = ():void => {
@@ -31,12 +39,51 @@ const CustomForm = ({hideModal}:Props):React.ReactElement => {
             setErrorInForm(false);
             console.log("Valid form data");
             console.log(formData);
+
+            if(mode === 'creation'){
+                const newItem:AnimeManga = {
+                    id: fakeAnimeList.length + 1,
+                    title: formData.title,
+                    episodes: formData.episodes,
+                    seasonsVolumes: formData.seasonsVolumes,
+                    status: formData.status,
+                    score: formData.score,
+                    genres: formData.genres,
+                    demographic: formData.demographic,
+                    personalComments: formData.personalComments,
+                    addedAt: new Date().toLocaleDateString(),
+                    lastUpdate: new Date().toLocaleDateString(),
+                };
+
+                if(type === 'anime') {
+                    fakeAnimeList.push(newItem);
+                }
+
+                if(type === 'manga'){
+                    fakeMangaList.push(newItem);
+                }
+            }
+
+            if(mode === 'edition') {
+                cardItem['title'] = formData.title;
+                cardItem['episodes'] = formData.episodes;
+                cardItem['seasonsVolumes'] = formData.seasonsVolumes;
+                cardItem['status'] = formData.status;
+                cardItem['score'] = formData.score;
+                cardItem['genres'] = formData.genres;
+                cardItem['demographic'] = formData.demographic;
+                cardItem['personalComments'] = formData.personalComments;
+                cardItem['lastUpdate'] = new Date().toLocaleDateString();
+            }
+
+            hideModal();
+            cleanFormData();
         } else {
             setErrorInForm(true);
         }
     };
 
-    const isValidForm = (formData:DataInput):boolean => {
+    const isValidForm = (formData:any):boolean => {
         const errors: string[] = [];
 
         if(formData.title === "") errors.push('title')
@@ -60,18 +107,8 @@ const CustomForm = ({hideModal}:Props):React.ReactElement => {
     };
 
     const cleanFormData = ():void => {
-        const emptyFormData = {
-            title: '',
-            episodes: 0,
-            seasonsVolumes: 0,
-            status: '',
-            score: 0,
-            genres: [],
-            demographic: undefined,
-            personalComments: '',
-        };
-
-        setFormData(emptyFormData);
+        setFormData(initialFormState);
+        setErrorInForm(false);
     };
 
     const chipSelectorHandler = (label:string, selectedChips: any[]):void => {
@@ -94,7 +131,21 @@ const CustomForm = ({hideModal}:Props):React.ReactElement => {
             </Appbar.Header>
 
             <ScrollView style={styles.formContainer}>
-                <Text variant='displaySmall' style={styles.formTitle}>Add Anime</Text>
+                {
+                    mode === "creation"
+                    ?
+                    (
+                        <Text variant='displaySmall' style={styles.formTitle}>
+                            { type === "anime" ? "Add Anime" : "Add Manga"}
+                        </Text>
+                    )
+                    :
+                    (
+                        <Text variant='displaySmall' style={styles.formTitle}>
+                            { type === "anime" ? "Edit Anime" : "Edit Manga"}
+                        </Text>
+                    )
+                }
 
                 <View style={styles.formGroup}>
                     <TextInput
@@ -128,7 +179,7 @@ const CustomForm = ({hideModal}:Props):React.ReactElement => {
                 <View style={styles.formGroup}>
                     <TextInput
                         mode='outlined'
-                        label='Seasons'
+                        label={type === "anime" ? "Seasons" : "Volumes"}
                         value={String(formData.seasonsVolumes)}
                         onChangeText={(value) => setFormData({...formData, seasonsVolumes: value === '' ? 0 : parseInt(value, 10)})}
                         outlineStyle={{borderRadius: 10}}
@@ -136,7 +187,7 @@ const CustomForm = ({hideModal}:Props):React.ReactElement => {
                         error={errorInForm && formData.seasonsVolumes === 0 ? true : false}
                     />
                     <HelperText type="error" visible={errorInForm && formData.seasonsVolumes === 0 ? true : false}>
-                        Seasons field is required
+                        {type === "anime" ? "Seasons" : "Volumes"} field is required
                     </HelperText>
                 </View>
 
@@ -181,14 +232,14 @@ const CustomForm = ({hideModal}:Props):React.ReactElement => {
                 </View>
 
                 <View style={styles.formGroup}>
-                    <ChipSelector label='Genres' data={fakeGenreList} mode='multiple' chipSelectorHandler={chipSelectorHandler} />
+                    <ChipSelector label='Genres' data={fakeGenreList} mode='multiple' chipSelectorHandler={chipSelectorHandler} value={formData.genres}/>
                     <HelperText type="error" visible={errorInForm && formData.genres.length === 0 ? true : false}>
                         Genres field is required
                     </HelperText>
                 </View>
 
                 <View style={styles.formGroup}>
-                    <ChipSelector label='Demographic' data={fakeDemographicList} mode='single' chipSelectorHandler={chipSelectorHandler} />
+                    <ChipSelector label='Demographic' data={fakeDemographicList} mode='single' chipSelectorHandler={chipSelectorHandler} value={formData.demographic}/>
                     <HelperText type="error" visible={errorInForm && formData.demographic === undefined ? true : false}>
                         Demographic field is required
                     </HelperText>
@@ -207,7 +258,9 @@ const CustomForm = ({hideModal}:Props):React.ReactElement => {
                 </View>
 
                 <View style={styles.actionsContainer}>
-                    <Button mode="outlined" onPress={() => handleSubmit()} style={{marginRight: 10}}>Add</Button>
+                    <Button mode="outlined" onPress={() => handleSubmit()} style={{marginRight: 10}}>
+                        { mode === 'creation' ? 'Add' : 'Save Changes'}
+                    </Button>
                     <Button mode="contained" onPress={() => handleCancel()}>Cancel</Button>
                 </View>
             </ScrollView>

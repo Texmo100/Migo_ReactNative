@@ -8,41 +8,16 @@ export interface Demographic {
     name: string,
 }
 
-export interface Anime {
+export interface AnimeManga {
     id: number,
-    title: string,
-    episodes: number,
-    seasons: number,
-    status: string,
-    score: number,
-    genres: Genre[],
-    demographic: Demographic,
-    personalComments: string,
-    addedAt: string,
-    lastUpdate: string,
-}
-
-export interface Manga {
-    id: number,
-    title: string,
-    episodes: number,
-    volumes: number,
-    status: string,
-    score: number,
-    genres: Genre[],
-    demographic: Demographic,
-    personalComments: string,
-    addedAt: string,
-    lastUpdate: string,
-}
-
-export interface DataInput {
     title: string,
     episodes: number,
     seasonsVolumes: number,
     status: string,
     score: number,
     genres: Genre[],
-    demographic: Demographic | undefined,
+    demographic: Demographic,
     personalComments: string,
+    addedAt: string,
+    lastUpdate: string,
 }
