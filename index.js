@@ -4,12 +4,16 @@ import { PaperProvider } from 'react-native-paper';
 import { name as appName } from './app.json';
 import { migoDarkTheme } from './src/assets/themes/migoDarkTheme';
 import App from './src/App';
+import { store } from './src/store/store';
+import { Provider } from 'react-redux';
 
 export default function Main() {
   return (
-    <PaperProvider theme={migoDarkTheme}>
-      <App />
-    </PaperProvider>
+    <Provider store={store}>
+      <PaperProvider theme={migoDarkTheme}>
+        <App />
+      </PaperProvider>
+    </Provider>
   );
 }
 

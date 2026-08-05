@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { Appbar, Text, TextInput, SegmentedButtons, Button, HelperText } from 'react-native-paper';
 
 import ChipSelector from './ChipSelector';
@@ -8,15 +7,16 @@ import ChipSelector from './ChipSelector';
 import { fakeGenreList } from '../types/fakeGenres';
 import { fakeDemographicList } from '../types/fakeDemographics';
 
-import { fakeAnimeList, fakeMangaList } from '../types/fakeDatabase';
-
 import { AnimeManga } from '../types/migoTypes';
 
 interface Props {
     hideModal: () => void,
+    onCreation: (item: AnimeManga) => void,
+    onEdition: (item: AnimeManga) => void,
     type: string,
     mode: string,
     cardItem: any,
+    collectionSize: number,
 }
 
 const initialFormState = {
@@ -26,57 +26,43 @@ const initialFormState = {
     status: '',
     score: 0,
     genres: [],
-    demographic: {} as AnimeManga,
+    demographic: '',
     personalComments: '',
 };
 
-const CustomForm = ({hideModal, type, mode, cardItem}:Props):React.ReactElement => {
+const CustomForm = ({hideModal, onCreation, onEdition, type, mode, cardItem, collectionSize }:Props):React.ReactElement => {
     const [formData, setFormData] = React.useState<any>(mode === 'edition' && cardItem ? cardItem : initialFormState);
     const [errorInForm, setErrorInForm] = React.useState(false);
 
     const handleSubmit = ():void => {
+        console.log(formData);
+
         if(isValidForm(formData)) {
             setErrorInForm(false);
-            console.log("Valid form data");
-            console.log(formData);
+
+            const newItem:AnimeManga = {
+                id: mode === 'creation' ? collectionSize + 1 : cardItem.id,
+                title: formData.title,
+                episodes: formData.episodes,
+                seasonsVolumes: formData.seasonsVolumes,
+                status: formData.status,
+                score: formData.score,
+                genres: formData.genres,
+                demographic: formData.demographic,
+                personalComments: formData.personalComments,
+                addedAt: mode === 'creation' ? new Date().toLocaleDateString() : cardItem.addedAt,
+                lastUpdate: new Date().toLocaleDateString(),
+                itemType: type,
+            };
 
             if(mode === 'creation'){
-                const newItem:AnimeManga = {
-                    id: fakeAnimeList.length + 1,
-                    title: formData.title,
-                    episodes: formData.episodes,
-                    seasonsVolumes: formData.seasonsVolumes,
-                    status: formData.status,
-                    score: formData.score,
-                    genres: formData.genres,
-                    demographic: formData.demographic,
-                    personalComments: formData.personalComments,
-                    addedAt: new Date().toLocaleDateString(),
-                    lastUpdate: new Date().toLocaleDateString(),
-                };
-
-                if(type === 'anime') {
-                    fakeAnimeList.push(newItem);
-                }
-
-                if(type === 'manga'){
-                    fakeMangaList.push(newItem);
-                }
+                onCreation(newItem);
             }
 
             if(mode === 'edition') {
-                cardItem['title'] = formData.title;
-                cardItem['episodes'] = formData.episodes;
-                cardItem['seasonsVolumes'] = formData.seasonsVolumes;
-                cardItem['status'] = formData.status;
-                cardItem['score'] = formData.score;
-                cardItem['genres'] = formData.genres;
-                cardItem['demographic'] = formData.demographic;
-                cardItem['personalComments'] = formData.personalComments;
-                cardItem['lastUpdate'] = new Date().toLocaleDateString();
+                onEdition(newItem);
             }
 
-            hideModal();
             cleanFormData();
         } else {
             setErrorInForm(true);
@@ -92,7 +78,7 @@ const CustomForm = ({hideModal, type, mode, cardItem}:Props):React.ReactElement 
         if(formData.status === "") errors.push('status')
         if(formData.score === 0) errors.push('score')
         if(formData.genres.length === 0) errors.push('genres')
-        if(formData.demographic === undefined) errors.push('demographic')
+        if(formData.demographic === "" || formData.demographic === undefined) errors.push('demographic')
 
         if(errors.length === 0) {
             return true;
@@ -124,7 +110,7 @@ const CustomForm = ({hideModal, type, mode, cardItem}:Props):React.ReactElement 
     };
 
     return (
-        <SafeAreaView style={{ flex: 1 }}>
+        <React.Fragment>
             <Appbar.Header>
                 <Appbar.BackAction onPress={() => handleCancel()} />
                 <Appbar.Content title="Migo Form" />
@@ -240,7 +226,7 @@ const CustomForm = ({hideModal, type, mode, cardItem}:Props):React.ReactElement 
 
                 <View style={styles.formGroup}>
                     <ChipSelector label='Demographic' data={fakeDemographicList} mode='single' chipSelectorHandler={chipSelectorHandler} value={formData.demographic}/>
-                    <HelperText type="error" visible={errorInForm && formData.demographic === undefined ? true : false}>
+                    <HelperText type="error" visible={errorInForm && (formData.demographic === "" || formData.demographic === undefined) ? true : false}>
                         Demographic field is required
                     </HelperText>
                 </View>
@@ -264,7 +250,7 @@ const CustomForm = ({hideModal, type, mode, cardItem}:Props):React.ReactElement 
                     <Button mode="contained" onPress={() => handleCancel()}>Cancel</Button>
                 </View>
             </ScrollView>
-        </SafeAreaView>
+        </React.Fragment>
     );
 };
 

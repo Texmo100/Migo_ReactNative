@@ -4,11 +4,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ActivityIndicator, useTheme } from 'react-native-paper';
 import Fab from '../components/Fab';
 import CardItem from '../components/CardItem';
+import type { RootState } from '../store/store';
+import { useSelector, useDispatch } from 'react-redux';
+import { addManga, deleteManga, editManga, fetchMangas } from '../store/mangaSlice';
 
-import { fakeMangaList } from '../types/fakeDatabase';
 import CustomModal from '../components/CustomModal';
 import CustomForm from '../components/CustomForm';
 import CustomDialog from '../components/CustomDialog';
+import { AnimeManga } from '../types/migoTypes';
 
 const ListHeader = ({listCount}:any):React.ReactElement => {
     return(
@@ -28,12 +31,14 @@ const ListFooter = ():React.ReactElement => {
 
 const Mangas = ():React.ReactElement => {
     const paperTheme = useTheme();
-    const [mangas, setMangas] = React.useState<any[]>([]);
+
     const [loading, setLoading] = React.useState(true);
     const [visibleModal, setVisibleModal] = React.useState(false);
     const [visibleDialog, setVisibleDialog] = React.useState(false);
-    const [editingManga, setEditingManga] = React.useState(null);
-    const [deletingManga, setDeletingManga] = React.useState(null);
+    const [editingManga, setEditingManga] = React.useState<any | null>(null);
+    const [deletingManga, setDeletingManga] = React.useState<any | null>(null);
+    const mangas = useSelector((state: RootState) => state.mangaReducer.mangas);
+    const dispatch = useDispatch();
 
     React.useEffect(() => {
         fetchData();
@@ -45,7 +50,8 @@ const Mangas = ():React.ReactElement => {
         // Simulate network delay with timeout
         await new Promise<void>(resolve => setTimeout(() => resolve(), 1000));
         
-        setMangas(fakeMangaList);
+        dispatch(fetchMangas());
+
         } catch (error) {
             console.error(error);
         } finally {
@@ -64,15 +70,32 @@ const Mangas = ():React.ReactElement => {
         showModal();
     };
 
+    const handleConfirmCreate = (newItem:AnimeManga):void => {
+        dispatch(addManga(newItem));
+        hideModal();
+    };
+
     const handleEdit = (cardItem:any):void => {
         setEditingManga(cardItem);
         showModal();
+    };
+
+    const handleConfirmEdit = (newItem:AnimeManga):void => {
+        dispatch(editManga(newItem));
+        hideModal();
     };
 
     const handleDelete = (cardItem:any):void => {
         setEditingManga(null);
         setDeletingManga(cardItem);
         showDialog();
+    };
+
+    const handleConfirmDelete = (): void => {
+        if (deletingManga) {
+            dispatch(deleteManga(deletingManga.id));
+        }
+        hideDialog();
     };
 
     if(loading){
@@ -89,16 +112,23 @@ const Mangas = ():React.ReactElement => {
             <FlatList
                 ListHeaderComponent={<ListHeader listCount={mangas.length}/>}
                 data={mangas}
-                renderItem={({ item }) => <CardItem type={'manga'} item={item} handleEdit={handleEdit} handleDelete={handleDelete}/>}
+                renderItem={({ item }) => <CardItem type={item.itemType} item={item} handleEdit={handleEdit} handleDelete={handleDelete}/>}
                 keyExtractor={item => item.id.toString()}
                 ListFooterComponent={<ListFooter />}
             />
 
             <CustomModal visible={visibleModal} hideModal={hideModal}>
-                <CustomForm hideModal={hideModal} type="manga" mode={editingManga === null ? 'creation' : 'edition'} cardItem={editingManga}/>
+                <CustomForm
+                    hideModal={hideModal}
+                    onCreation={handleConfirmCreate}
+                    onEdition={handleConfirmEdit}
+                    type="manga" mode={editingManga === null ? 'creation' : 'edition'}
+                    cardItem={editingManga}
+                    collectionSize={mangas.length}
+                />
             </CustomModal>
 
-            <CustomDialog visible={visibleDialog} hideDialog={hideDialog} type="manga" itemToDelete={deletingManga} />
+            <CustomDialog visible={visibleDialog} hideDialog={hideDialog} onAction={handleConfirmDelete} type="manga" itemToDelete={deletingManga} />
 
             <Fab onPressFunction={() => handleCreate()}/>
         </SafeAreaView>

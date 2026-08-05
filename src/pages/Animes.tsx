@@ -4,11 +4,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ActivityIndicator, useTheme } from 'react-native-paper';
 import Fab from '../components/Fab';
 import CardItem from '../components/CardItem';
+import type { RootState } from '../store/store';
+import { useSelector, useDispatch } from 'react-redux';
+import { addAnime, deleteAnime, editAnime, fetchAnimes } from '../store/animeSlice';
 
-import { fakeAnimeList } from '../types/fakeDatabase';
 import CustomModal from '../components/CustomModal';
 import CustomForm from '../components/CustomForm';
 import CustomDialog from '../components/CustomDialog';
+import { AnimeManga } from '../types/migoTypes';
 
 const ListHeader = ({listCount}:any):React.ReactElement => {
     return(
@@ -28,12 +31,14 @@ const ListFooter = ():React.ReactElement => {
 
 const Animes = ():React.ReactElement => {
     const paperTheme = useTheme();
-    const [animes, setAnimes] = React.useState<any[]>([]);
+    
     const [loading, setLoading] = React.useState(true);
     const [visibleModal, setVisibleModal] = React.useState(false);
     const [visibleDialog, setVisibleDialog] = React.useState(false);
-    const [editingAnime, setEditingAnime] = React.useState(null);
-    const [deletingAnime, setDeletingAnime] = React.useState(null);
+    const [editingAnime, setEditingAnime] = React.useState<any | null>(null);
+    const [deletingAnime, setDeletingAnime] = React.useState<any | null>(null);
+    const animes = useSelector((state: RootState) => state.animeReducer.animes);
+    const dispatch = useDispatch();
 
     React.useEffect(() => {
         fetchData();
@@ -45,7 +50,8 @@ const Animes = ():React.ReactElement => {
         // Simulate network delay with timeout
         await new Promise<void>(resolve => setTimeout(() => resolve(), 1000));
         
-        setAnimes(fakeAnimeList);
+        dispatch(fetchAnimes());
+        
         } catch (error) {
             console.error(error);
         } finally {
@@ -64,15 +70,32 @@ const Animes = ():React.ReactElement => {
         showModal();
     };
 
+    const handleConfirmCreate = (newItem:AnimeManga):void => {
+        dispatch(addAnime(newItem));
+        hideModal();
+    };
+
     const handleEdit = (cardItem:any):void => {
         setEditingAnime(cardItem);
         showModal();
+    };
+
+    const handleConfirmEdit = (newItem:AnimeManga):void => {
+        dispatch(editAnime(newItem));
+        hideModal();
     };
 
     const handleDelete = (cardItem:any):void => {
         setEditingAnime(null);
         setDeletingAnime(cardItem);
         showDialog();
+    };
+
+    const handleConfirmDelete = (): void => {
+        if (deletingAnime) {
+            dispatch(deleteAnime(deletingAnime.id));
+        }
+        hideDialog();
     };
 
     if(loading){
@@ -89,16 +112,23 @@ const Animes = ():React.ReactElement => {
             <FlatList
                 ListHeaderComponent={<ListHeader listCount={animes.length}/>}
                 data={animes}
-                renderItem={({ item }) => <CardItem type={'anime'} item={item} handleEdit={handleEdit} handleDelete={handleDelete}/>}
+                renderItem={({ item }) => <CardItem type={item.itemType} item={item} handleEdit={handleEdit} handleDelete={handleDelete}/>}
                 keyExtractor={item => item.id.toString()}
                 ListFooterComponent={<ListFooter />}
             />
 
             <CustomModal visible={visibleModal} hideModal={hideModal}>
-                <CustomForm hideModal={hideModal} type="anime" mode={editingAnime === null ? 'creation' : 'edition'} cardItem={editingAnime}/>
+                <CustomForm
+                    hideModal={hideModal}
+                    onCreation={handleConfirmCreate}
+                    onEdition={handleConfirmEdit}
+                    type="anime" mode={editingAnime === null ? 'creation' : 'edition'}
+                    cardItem={editingAnime}
+                    collectionSize={animes.length}
+                />
             </CustomModal>
 
-            <CustomDialog visible={visibleDialog} hideDialog={hideDialog} type="anime" itemToDelete={deletingAnime} />
+            <CustomDialog visible={visibleDialog} hideDialog={hideDialog} onAction={handleConfirmDelete} type="anime" itemToDelete={deletingAnime} />
 
             <Fab onPressFunction={handleCreate}/>
         </SafeAreaView>

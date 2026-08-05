@@ -20,4 +20,5 @@ export interface AnimeManga {
     personalComments: string,
     addedAt: string,
     lastUpdate: string,
+    itemType: string,
 }

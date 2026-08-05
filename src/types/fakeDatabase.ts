@@ -18,6 +18,7 @@ export const fakeAnimeList: AnimeManga[] = [
         personalComments: "",
         addedAt: '06/27/2026',
         lastUpdate: '06/27/2026',
+        itemType: 'anime',
     },
     {
         id: 1,
@@ -34,6 +35,7 @@ export const fakeAnimeList: AnimeManga[] = [
         personalComments: "",
         addedAt: '06/27/2026',
         lastUpdate: '06/27/2026',
+        itemType: 'anime',
     },
 ];
 
@@ -53,6 +55,7 @@ export const fakeMangaList: AnimeManga[] = [
         personalComments: "",
         addedAt: '06/28/2026',
         lastUpdate: '06/28/2026',
+        itemType: 'manga',
     },
     {
         id: 1,
@@ -69,5 +72,6 @@ export const fakeMangaList: AnimeManga[] = [
         personalComments: "",
         addedAt: '06/28/2026',
         lastUpdate: '06/28/2026',
+        itemType: 'manga',
     },
 ];

@@ -26,7 +26,7 @@ const CardItem = ({type, item, handleEdit, handleDelete}: Props):React.ReactElem
   };
 
   return(
-    <Card style={{ marginBottom: 10 }} onLongPress={toggleShowActions}>
+    <Card style={{ marginBottom: 10 }} onPress={toggleShowActions}>
       <Card.Content>
         <Text variant="displaySmall" style={{textTransform: 'capitalize'}}>{item.title}</Text>
         
