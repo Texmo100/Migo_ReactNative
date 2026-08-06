@@ -31,4 +31,6 @@ export const fakeGenreList: Genre[] = [
     { id: 27, name: 'yaoi' },
     { id: 28, name: 'yuri' },
     { id: 29, name: 'gore' },
+    { id: 30, name: 'isekai' },
+    { id: 31, name: 'erotica' },
 ];

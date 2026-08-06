@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "95939663662",
+    "firebase_url": "https://migo-8e856-default-rtdb.firebaseio.com",
+    "project_id": "migo-8e856",
+    "storage_bucket": "migo-8e856.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:95939663662:android:847b222a9a4c1f416dccbf",
+        "android_client_info": {
+          "package_name": "com.migo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "95939663662-vt8i4jgup0dgushl0e42hr26crdifpv8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBCdJMBctUDV3qOpqODV73uWYvDLxxn9R8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "95939663662-vt8i4jgup0dgushl0e42hr26crdifpv8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
