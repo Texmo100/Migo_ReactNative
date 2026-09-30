@@ -9,6 +9,8 @@ import {
   getDocs,
   getFirestore,
   updateDoc,
+  query,
+  where,
 } from "@react-native-firebase/firestore";
 
 import type { AnimeManga, AnimeMangaInput } from "../types/migoTypes";
@@ -16,6 +18,7 @@ import type { RootState } from "./store";
 
 const db = getFirestore();
 const COLLECTION = "media_items";
+const ITEM_TYPE_NAME = "anime";
 
 export const fetchAnimes = createAsyncThunk<
     AnimeManga[], 
@@ -23,7 +26,9 @@ export const fetchAnimes = createAsyncThunk<
     { rejectValue: string }
 >("anime/fetchAnimes", async (_, { rejectWithValue }) => {
   try {
-    const snapshot = await getDocs(collection(db, COLLECTION));
+    const snapshot = await getDocs(
+        query(collection(db, COLLECTION), where("itemType", "==", ITEM_TYPE_NAME)),
+    );
     return snapshot.docs.map((d) => ({
       id: d.id,
       ...(d.data() as AnimeMangaInput),
