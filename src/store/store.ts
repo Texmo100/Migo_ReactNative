@@ -1,11 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
-import  animeReducer from './animeSlice'
+import animeReducer from './animeSlice'
 import mangaReducer from './mangaSlice'
 
 export const store = configureStore({
     reducer: {
-        animeReducer,
-        mangaReducer,
+        anime: animeReducer,
+        manga: mangaReducer,
     },
 })
 

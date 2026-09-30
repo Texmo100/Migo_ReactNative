@@ -4,16 +4,21 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ActivityIndicator, useTheme } from 'react-native-paper';
 import Fab from '../components/Fab';
 import CardItem from '../components/CardItem';
-import type { RootState } from '../store/store';
 import { useSelector, useDispatch } from 'react-redux';
-import { addAnime, deleteAnime, editAnime, fetchAnimes } from '../store/animeSlice';
+import type { AppDispatch } from '../store/store';
+import { 
+    addAnime, 
+    deleteAnime, 
+    editAnime, 
+    fetchAnimes, 
+    selectAnimeLoading, 
+    selectAnimes 
+} from '../store/animeSlice';
 
 import CustomModal from '../components/CustomModal';
 import CustomForm from '../components/CustomForm';
 import CustomDialog from '../components/CustomDialog';
 import { AnimeManga, AnimeMangaInput } from '../types/migoTypes';
-
-import { collection, getFirestore, onSnapshot } from '@react-native-firebase/firestore';
 
 const ListHeader = ({listCount}:any):React.ReactElement => {
     return(
@@ -31,46 +36,20 @@ const ListFooter = ():React.ReactElement => {
     );
 };
 
-const db = getFirestore();
-
 const Animes = ():React.ReactElement => {
     const paperTheme = useTheme();
     
-    const [loading, setLoading] = React.useState(true);
+    const loading = useSelector(selectAnimeLoading);
     const [visibleModal, setVisibleModal] = React.useState(false);
     const [visibleDialog, setVisibleDialog] = React.useState(false);
     const [editingAnime, setEditingAnime] = React.useState<any | null>(null);
     const [deletingAnime, setDeletingAnime] = React.useState<any | null>(null);
-    const animes = useSelector((state: RootState) => state.animeReducer.animes);
-    const dispatch = useDispatch();
+    const animes = useSelector(selectAnimes);
+    const dispatch = useDispatch<AppDispatch>();
 
     React.useEffect(() => {
-        const subscriber = onSnapshot(collection(db, 'media_items'), querySnapshot => {
-            const animes: AnimeManga[]= [];
-            querySnapshot.forEach(documentSnapshot => {
-                const animeData = documentSnapshot.data();
-
-                animes.push({
-                    id: documentSnapshot.id,
-                    title: animeData.title,
-                    episodes: animeData.episodes,
-                    seasonsVolumes: animeData.seasonsVolumes,
-                    status: animeData.status,
-                    score: animeData.score,
-                    genres: animeData.genres,
-                    demographic: animeData.demographic,
-                    personalComments: animeData.personalComments,
-                    addedAt: animeData.addedAt,
-                    lastUpdate: animeData.lastUpdate,
-                    itemType: animeData.itemType,
-                });
-            });
-            dispatch(fetchAnimes(animes));
-            setLoading(false);
-        });
-        // Unsubscribe from events when no longer in use
-        return () => subscriber();
-    }, []);
+        dispatch(fetchAnimes());
+    }, [dispatch]);
 
     const showModal = () => setVisibleModal(true);
     const hideModal = () => setVisibleModal(false);

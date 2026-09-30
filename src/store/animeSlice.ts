@@ -1,47 +1,153 @@
-import { createSlice } from "@reduxjs/toolkit";
+// src/store/animeSlice.ts
+import { createSlice, createAsyncThunk, createSelector } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
-import { AnimeManga, AnimeMangaInput } from "../types/migoTypes";
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  getFirestore,
+  updateDoc,
+} from "@react-native-firebase/firestore";
 
-import { doc, addDoc, updateDoc, deleteDoc, collection, getFirestore } from '@react-native-firebase/firestore';
+import type { AnimeManga, AnimeMangaInput } from "../types/migoTypes";
+import type { RootState } from "./store";
+
 const db = getFirestore();
+const COLLECTION = "media_items";
 
-interface animeState {
-    isLoading: boolean
-    animes: AnimeManga[]
+export const fetchAnimes = createAsyncThunk<
+    AnimeManga[], 
+    void, 
+    { rejectValue: string }
+>("anime/fetchAnimes", async (_, { rejectWithValue }) => {
+  try {
+    const snapshot = await getDocs(collection(db, COLLECTION));
+    return snapshot.docs.map((d) => ({
+      id: d.id,
+      ...(d.data() as AnimeMangaInput),
+    })) as AnimeManga[];
+  } catch (err) {
+    return rejectWithValue((err as Error).message);
+  }
+});
+
+export const addAnime = createAsyncThunk<
+  AnimeManga,
+  AnimeMangaInput,
+  { rejectValue: string }
+>("anime/addAnime", async (input, { rejectWithValue }) => {
+  try {
+    const ref = await addDoc(collection(db, COLLECTION), input);
+    return { id: ref.id, ...input } as AnimeManga;
+  } catch (err) {
+    return rejectWithValue((err as Error).message);
+  }
+});
+
+export const editAnime = createAsyncThunk<
+  AnimeManga,
+  AnimeManga,
+  { rejectValue: string }
+>("anime/editAnime", async (anime, { rejectWithValue }) => {
+  try {
+    const { id, ...data } = anime;
+    await updateDoc(doc(db, COLLECTION, id), data);
+    return anime;
+  } catch (err) {
+    return rejectWithValue((err as Error).message);
+  }
+});
+
+export const deleteAnime = createAsyncThunk<
+  string,
+  string,
+  { rejectValue: string }
+>("anime/deleteAnime", async (id, { rejectWithValue }) => {
+  try {
+    await deleteDoc(doc(db, COLLECTION, id));
+    return id;
+  } catch (err) {
+    return rejectWithValue((err as Error).message);
+  }
+});
+
+interface AnimeState {
+  isLoading: boolean;
+  animes: AnimeManga[];
+  error: string | null;
 }
 
-const initialState: animeState = {
-    isLoading: false,
-    animes: []
-}
+const initialState: AnimeState = {
+  isLoading: false,
+  animes: [],
+  error: null,
+};
 
 export const animeSlice = createSlice({
-    name: 'anime',
-    initialState,
-    reducers: {
-        fetchAnimes: (state, action: PayloadAction<AnimeManga[]>) => {
-            state.animes = action.payload;
-        },
-        addAnime: (state, action: PayloadAction<AnimeMangaInput>) => {
-            addDoc(collection(db, 'media_items'), action.payload)
-            .then(() => {console.log('AnimeManga added!') });
-        },
-        editAnime: (state, action: PayloadAction<AnimeManga>) => {
-            updateDoc(
-                doc(collection(db, 'media_items'), action.payload.id),
-                { ...action.payload }
-            )
-            .then(() => { console.log('AnimeManga updated!') });
-        },
-        deleteAnime: (state, action: PayloadAction<string>) => {
-            const mediaItemRef = doc(getFirestore(), `media_items/${action.payload}`);
-            deleteDoc(mediaItemRef).then(() => {
-                console.log('AnimeManga deleted!');
-            });
-        },
-    }
-})
+  name: "anime",
+  initialState,
+  reducers: {
+    animeAddedLocally: (state, action: PayloadAction<AnimeManga>) => {
+      state.animes.push(action.payload);
+    },
+    animeRemovedLocally: (state, action: PayloadAction<string>) => {
+      state.animes = state.animes.filter((a) => a.id !== action.payload);
+    },
+    clearAnimeError: (state) => {
+      state.error = null;
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      // -------- fetchAnimes --------
+      .addCase(fetchAnimes.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchAnimes.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.animes = action.payload;
+      })
+      .addCase(fetchAnimes.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload ?? "Failed to fetch animes";
+      })
 
-export const { fetchAnimes, addAnime, editAnime, deleteAnime } = animeSlice.actions;
+      // -------- addAnime --------
+      .addCase(addAnime.fulfilled, (state, action) => {
+        state.animes.push(action.payload);
+      })
+      .addCase(addAnime.rejected, (state, action) => {
+        state.error = action.payload ?? "Failed to add anime";
+      })
+
+      // -------- editAnime --------
+      .addCase(editAnime.fulfilled, (state, action) => {
+        const idx = state.animes.findIndex((a) => a.id === action.payload.id);
+        if (idx !== -1) state.animes[idx] = action.payload;
+      })
+      .addCase(editAnime.rejected, (state, action) => {
+        state.error = action.payload ?? "Failed to edit anime";
+      })
+
+      // -------- deleteAnime --------
+      .addCase(deleteAnime.fulfilled, (state, action) => {
+        state.animes = state.animes.filter((a) => a.id !== action.payload);
+      })
+      .addCase(deleteAnime.rejected, (state, action) => {
+        state.error = action.payload ?? "Failed to delete anime";
+      });
+  },
+});
+
+export const { animeAddedLocally, animeRemovedLocally, clearAnimeError } =
+  animeSlice.actions;
 
 export default animeSlice.reducer;
+
+// Selectors
+export const selectAnimes = (state: RootState) => state.anime.animes;
+export const selectAnimeLoading = (state: RootState) => state.anime.isLoading;
+export const selectAnimeError = (state: RootState) => state.anime.error;
