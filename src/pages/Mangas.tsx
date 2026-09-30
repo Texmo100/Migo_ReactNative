@@ -4,14 +4,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ActivityIndicator, useTheme } from 'react-native-paper';
 import Fab from '../components/Fab';
 import CardItem from '../components/CardItem';
-import type { RootState } from '../store/store';
 import { useSelector, useDispatch } from 'react-redux';
-import { addManga, deleteManga, editManga, fetchMangas } from '../store/mangaSlice';
+import { addManga, deleteManga, editManga, fetchMangas, selectMangaLoading, selectMangas } from '../store/mangaSlice';
 
 import CustomModal from '../components/CustomModal';
 import CustomForm from '../components/CustomForm';
 import CustomDialog from '../components/CustomDialog';
-import { AnimeManga } from '../types/migoTypes';
+import { AnimeManga, AnimeMangaInput } from '../types/migoTypes';
+import type { AppDispatch } from '../store/store';
 
 const ListHeader = ({listCount}:any):React.ReactElement => {
     return(
@@ -32,32 +32,17 @@ const ListFooter = ():React.ReactElement => {
 const Mangas = ():React.ReactElement => {
     const paperTheme = useTheme();
 
-    const [loading, setLoading] = React.useState(true);
+    const loading= useSelector(selectMangaLoading);
     const [visibleModal, setVisibleModal] = React.useState(false);
     const [visibleDialog, setVisibleDialog] = React.useState(false);
     const [editingManga, setEditingManga] = React.useState<any | null>(null);
     const [deletingManga, setDeletingManga] = React.useState<any | null>(null);
-    const mangas = useSelector((state: RootState) => state.mangaReducer.mangas);
-    const dispatch = useDispatch();
+    const mangas = useSelector(selectMangas);
+    const dispatch = useDispatch<AppDispatch>();
 
     React.useEffect(() => {
-        fetchData();
-    }, []);
-
-    const fetchData = async () => {
-        setLoading(true);
-        try {
-        // Simulate network delay with timeout
-        await new Promise<void>(resolve => setTimeout(() => resolve(), 1000));
-        
         dispatch(fetchMangas());
-
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setLoading(false);
-        }
-    };
+    }, [dispatch]);
 
     const showModal = () => setVisibleModal(true);
     const hideModal = () => setVisibleModal(false);
@@ -70,7 +55,7 @@ const Mangas = ():React.ReactElement => {
         showModal();
     };
 
-    const handleConfirmCreate = (newItem:AnimeManga):void => {
+    const handleConfirmCreate = (newItem:AnimeMangaInput):void => {
         dispatch(addManga(newItem));
         hideModal();
     };

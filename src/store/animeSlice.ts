@@ -147,8 +147,7 @@ export const animeSlice = createSlice({
   },
 });
 
-export const { animeAddedLocally, animeRemovedLocally, clearAnimeError } =
-  animeSlice.actions;
+export const { animeAddedLocally, animeRemovedLocally, clearAnimeError } = animeSlice.actions;
 
 export default animeSlice.reducer;
 
