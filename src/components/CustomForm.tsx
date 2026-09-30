@@ -7,11 +7,11 @@ import ChipSelector from './ChipSelector';
 import { fakeGenreList } from '../types/fakeGenres';
 import { fakeDemographicList } from '../types/fakeDemographics';
 
-import { AnimeManga } from '../types/migoTypes';
+import { AnimeManga, AnimeMangaInput } from '../types/migoTypes';
 
 interface Props {
     hideModal: () => void,
-    onCreation: (item: AnimeManga) => void,
+    onCreation: (item: AnimeMangaInput) => void,
     onEdition: (item: AnimeManga) => void,
     type: string,
     mode: string,
@@ -40,27 +40,39 @@ const CustomForm = ({hideModal, onCreation, onEdition, type, mode, cardItem, col
         if(isValidForm(formData)) {
             setErrorInForm(false);
 
-            const newItem:AnimeManga = {
-                id: mode === 'creation' ? collectionSize + 1 : cardItem.id,
-                title: formData.title,
-                episodes: formData.episodes,
-                seasonsVolumes: formData.seasonsVolumes,
-                status: formData.status,
-                score: formData.score,
-                genres: formData.genres,
-                demographic: formData.demographic,
-                personalComments: formData.personalComments,
-                addedAt: mode === 'creation' ? new Date().toLocaleDateString() : cardItem.addedAt,
-                lastUpdate: new Date().toLocaleDateString(),
-                itemType: type,
-            };
-
             if(mode === 'creation'){
-                onCreation(newItem);
+                const formItem: AnimeMangaInput = {
+                    title: formData.title,
+                    episodes: formData.episodes,
+                    seasonsVolumes: formData.seasonsVolumes,
+                    status: formData.status,
+                    score: formData.score,
+                    genres: formData.genres,
+                    demographic: formData.demographic,
+                    personalComments: formData.personalComments,
+                    addedAt: new Date().toLocaleDateString(),
+                    lastUpdate: new Date().toLocaleDateString(),
+                    itemType: type,
+                };
+                onCreation(formItem);
             }
 
             if(mode === 'edition') {
-                onEdition(newItem);
+                const formItem: AnimeManga = {
+                    id: cardItem.id,
+                    title: formData.title,
+                    episodes: formData.episodes,
+                    seasonsVolumes: formData.seasonsVolumes,
+                    status: formData.status,
+                    score: formData.score,
+                    genres: formData.genres,
+                    demographic: formData.demographic,
+                    personalComments: formData.personalComments,
+                    addedAt: cardItem.addedAt,
+                    lastUpdate: new Date().toLocaleDateString(),
+                    itemType: type,
+                };
+                onEdition(formItem);
             }
 
             cleanFormData();

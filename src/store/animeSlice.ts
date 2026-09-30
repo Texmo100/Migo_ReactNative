@@ -1,7 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
-import { AnimeManga } from "../types/migoTypes";
-import { fakeAnimeList } from "../types/fakeDatabase";
+import { AnimeManga, AnimeMangaInput } from "../types/migoTypes";
+
+import { doc, addDoc, updateDoc, deleteDoc, collection, getFirestore } from '@react-native-firebase/firestore';
+const db = getFirestore();
 
 interface animeState {
     isLoading: boolean
@@ -17,21 +19,25 @@ export const animeSlice = createSlice({
     name: 'anime',
     initialState,
     reducers: {
-        fetchAnimes: (state) => {
-            state.animes = fakeAnimeList;
+        fetchAnimes: (state, action: PayloadAction<AnimeManga[]>) => {
+            state.animes = action.payload;
         },
-        addAnime: (state, action: PayloadAction<AnimeManga>) => {
-            state.animes.push(action.payload);
+        addAnime: (state, action: PayloadAction<AnimeMangaInput>) => {
+            addDoc(collection(db, 'media_items'), action.payload)
+            .then(() => {console.log('AnimeManga added!') });
         },
         editAnime: (state, action: PayloadAction<AnimeManga>) => {
-            const index = state.animes.findIndex(anime => anime.id === action.payload.id);
-            if (index !== -1) {
-                state.animes[index] = action.payload;
-            }
+            updateDoc(
+                doc(collection(db, 'media_items'), action.payload.id),
+                { ...action.payload }
+            )
+            .then(() => { console.log('AnimeManga updated!') });
         },
-        deleteAnime: (state, action: PayloadAction<number>) => {
-            let newAnimeList = state.animes.filter(anime => anime.id !== action.payload);
-            state.animes = newAnimeList;
+        deleteAnime: (state, action: PayloadAction<string>) => {
+            const mediaItemRef = doc(getFirestore(), `media_items/${action.payload}`);
+            deleteDoc(mediaItemRef).then(() => {
+                console.log('AnimeManga deleted!');
+            });
         },
     }
 })

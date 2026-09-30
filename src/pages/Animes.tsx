@@ -11,7 +11,9 @@ import { addAnime, deleteAnime, editAnime, fetchAnimes } from '../store/animeSli
 import CustomModal from '../components/CustomModal';
 import CustomForm from '../components/CustomForm';
 import CustomDialog from '../components/CustomDialog';
-import { AnimeManga } from '../types/migoTypes';
+import { AnimeManga, AnimeMangaInput } from '../types/migoTypes';
+
+import { collection, getFirestore, onSnapshot } from '@react-native-firebase/firestore';
 
 const ListHeader = ({listCount}:any):React.ReactElement => {
     return(
@@ -29,6 +31,8 @@ const ListFooter = ():React.ReactElement => {
     );
 };
 
+const db = getFirestore();
+
 const Animes = ():React.ReactElement => {
     const paperTheme = useTheme();
     
@@ -41,23 +45,32 @@ const Animes = ():React.ReactElement => {
     const dispatch = useDispatch();
 
     React.useEffect(() => {
-        fetchData();
-    }, []);
+        const subscriber = onSnapshot(collection(db, 'media_items'), querySnapshot => {
+            const animes: AnimeManga[]= [];
+            querySnapshot.forEach(documentSnapshot => {
+                const animeData = documentSnapshot.data();
 
-    const fetchData = async () => {
-        setLoading(true);
-        try {
-        // Simulate network delay with timeout
-        await new Promise<void>(resolve => setTimeout(() => resolve(), 1000));
-        
-        dispatch(fetchAnimes());
-        
-        } catch (error) {
-            console.error(error);
-        } finally {
+                animes.push({
+                    id: documentSnapshot.id,
+                    title: animeData.title,
+                    episodes: animeData.episodes,
+                    seasonsVolumes: animeData.seasonsVolumes,
+                    status: animeData.status,
+                    score: animeData.score,
+                    genres: animeData.genres,
+                    demographic: animeData.demographic,
+                    personalComments: animeData.personalComments,
+                    addedAt: animeData.addedAt,
+                    lastUpdate: animeData.lastUpdate,
+                    itemType: animeData.itemType,
+                });
+            });
+            dispatch(fetchAnimes(animes));
             setLoading(false);
-        }
-    };
+        });
+        // Unsubscribe from events when no longer in use
+        return () => subscriber();
+    }, []);
 
     const showModal = () => setVisibleModal(true);
     const hideModal = () => setVisibleModal(false);
@@ -70,7 +83,7 @@ const Animes = ():React.ReactElement => {
         showModal();
     };
 
-    const handleConfirmCreate = (newItem:AnimeManga):void => {
+    const handleConfirmCreate = (newItem:AnimeMangaInput):void => {
         dispatch(addAnime(newItem));
         hideModal();
     };

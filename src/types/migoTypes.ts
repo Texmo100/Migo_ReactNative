@@ -9,7 +9,21 @@ export interface Demographic {
 }
 
 export interface AnimeManga {
-    id: number,
+    id: string,
+    title: string,
+    episodes: number,
+    seasonsVolumes: number,
+    status: string,
+    score: number,
+    genres: Genre[],
+    demographic: Demographic,
+    personalComments: string,
+    addedAt: string,
+    lastUpdate: string,
+    itemType: string,
+}
+
+export interface AnimeMangaInput {
     title: string,
     episodes: number,
     seasonsVolumes: number,
