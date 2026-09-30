@@ -219,7 +219,7 @@ const CustomForm = ({hideModal, onCreation, onEdition, type, mode, cardItem, col
                         mode='outlined'
                         label='Score'
                         value={String(formData.score)}
-                        onChangeText={(value) => setFormData({...formData, score: value === '' ? 0 : parseInt(value, 10)})}
+                        onChangeText={(value) => setFormData({...formData, score: value === '' ? 0 : parseFloat(value)})}
                         outlineStyle={{borderRadius: 10}}
                         keyboardType='numeric'
                         error={errorInForm && formData.score === 0 ? true : false}
