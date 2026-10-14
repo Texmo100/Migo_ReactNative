@@ -13,7 +13,6 @@ import {
     selectMangas 
 } from '../store/mangaSlice';
 
-
 import Fab from '../components/Fab';
 import CardItem from '../components/CardItem';
 import CustomModal from '../components/CustomModal';
@@ -24,7 +23,6 @@ import ListFooter from '../components/ListFooter';
 import EmptyList from '../components/EmptyList';
 
 import { AnimeManga, AnimeMangaInput } from '../types/migoTypes';
-
 
 const Mangas = ():React.ReactElement => {
     const paperTheme = useTheme();
