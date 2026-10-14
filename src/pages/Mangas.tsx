@@ -9,6 +9,7 @@ import {
     deleteManga,
     editManga,
     fetchMangas,
+    selectMangaFilter,
     selectMangaLoading,
     selectMangas 
 } from '../store/mangaSlice';
@@ -28,6 +29,7 @@ const Mangas = ():React.ReactElement => {
     const paperTheme = useTheme();
 
     const loading= useSelector(selectMangaLoading);
+    const mangaFilter = useSelector(selectMangaFilter);
     const [visibleModal, setVisibleModal] = React.useState(false);
     const [visibleDialog, setVisibleDialog] = React.useState(false);
     const [editingManga, setEditingManga] = React.useState<any | null>(null);
@@ -36,8 +38,8 @@ const Mangas = ():React.ReactElement => {
     const dispatch = useDispatch<AppDispatch>();
 
     React.useEffect(() => {
-        dispatch(fetchMangas());
-    }, [dispatch]);
+        dispatch(fetchMangas(mangaFilter));
+    }, [dispatch, mangaFilter]);
 
     const showModal = () => setVisibleModal(true);
     const hideModal = () => setVisibleModal(false);
@@ -78,7 +80,7 @@ const Mangas = ():React.ReactElement => {
         hideDialog();
     };
 
-    if(loading){
+    if(loading) {
         return (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                 <ActivityIndicator animating={true} color={paperTheme.colors.primary} size={'large'}/>
@@ -88,7 +90,7 @@ const Mangas = ():React.ReactElement => {
     }
 
     return(
-        <SafeAreaView style={{flex: 1, padding: 10 }}>
+        <SafeAreaView style={{flex: 1, paddingLeft: 10, paddingRight: 10 }}>
             <FlatList
                 ListHeaderComponent={<ListHeader listType='manga' listCount={mangas.length} />}
                 data={mangas}

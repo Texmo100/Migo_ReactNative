@@ -9,6 +9,7 @@ import {
     deleteAnime, 
     editAnime, 
     fetchAnimes, 
+    selectAnimeFilter, 
     selectAnimeLoading, 
     selectAnimes 
 } from '../store/animeSlice';
@@ -28,6 +29,7 @@ const Animes = ():React.ReactElement => {
     const paperTheme = useTheme();
     
     const loading = useSelector(selectAnimeLoading);
+    const animeFilter = useSelector(selectAnimeFilter);
     const [visibleModal, setVisibleModal] = React.useState(false);
     const [visibleDialog, setVisibleDialog] = React.useState(false);
     const [editingAnime, setEditingAnime] = React.useState<any | null>(null);
@@ -36,8 +38,8 @@ const Animes = ():React.ReactElement => {
     const dispatch = useDispatch<AppDispatch>();
 
     React.useEffect(() => {
-        dispatch(fetchAnimes());
-    }, [dispatch]);
+        dispatch(fetchAnimes(animeFilter));
+    }, [dispatch, animeFilter]);
 
     const showModal = () => setVisibleModal(true);
     const hideModal = () => setVisibleModal(false);
@@ -78,7 +80,7 @@ const Animes = ():React.ReactElement => {
         hideDialog();
     };
 
-    if(loading){
+    if(loading) {
         return (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                 <ActivityIndicator animating={true} color={paperTheme.colors.primary} size={'large'}/>
@@ -88,7 +90,7 @@ const Animes = ():React.ReactElement => {
     }
 
     return(
-        <SafeAreaView style={{flex: 1, padding: 10 }}>
+        <SafeAreaView style={{flex: 1, paddingLeft: 10, paddingRight: 10 }}>
             <FlatList
                 ListHeaderComponent={<ListHeader listType='anime' listCount={animes.length} />}
                 data={animes}

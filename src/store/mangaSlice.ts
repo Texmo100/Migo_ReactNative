@@ -1,5 +1,5 @@
 // src/store/animeSlice.ts
-import { createSlice, createAsyncThunk, createSelector } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import {
   addDoc,
@@ -20,14 +20,18 @@ const db = getFirestore();
 const COLLECTION = "media_items";
 const ITEM_TYPE_NAME = "manga";
 
+type Status = "completed" | "in-progress" | "archived";
+
 export const fetchMangas = createAsyncThunk<
     AnimeManga[], 
-    void, 
+    Status, 
     { rejectValue: string }
->("manga/fetchMangas", async (_, { rejectWithValue }) => {
+>("manga/fetchMangas", async (filter, { rejectWithValue }) => {
   try {
     const snapshot = await getDocs(
-        query(collection(db, COLLECTION), where("itemType", "==", ITEM_TYPE_NAME)),
+      query(collection(db, COLLECTION), 
+      where("itemType", "==", ITEM_TYPE_NAME),
+      where("status", "==", filter)),
     );
     return snapshot.docs.map((d) => ({
       id: d.id,
@@ -82,12 +86,14 @@ interface MangaState {
   isLoading: boolean;
   mangas: AnimeManga[];
   error: string | null;
+  filter: Status;
 }
 
 const initialState: MangaState = {
   isLoading: false,
   mangas: [],
   error: null,
+  filter: 'in-progress',
 };
 
 export const mangaSlice = createSlice({
@@ -102,6 +108,9 @@ export const mangaSlice = createSlice({
     },
     clearMangaError: (state) => {
       state.error = null;
+    },
+    setMangaFilter: (state, action: PayloadAction<Status>) => {
+      state.filter = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -147,7 +156,12 @@ export const mangaSlice = createSlice({
   },
 });
 
-export const { mangaAddedLocally, mangaRemovedLocally, clearMangaError } = mangaSlice.actions;
+export const { 
+  mangaAddedLocally, 
+  mangaRemovedLocally, 
+  clearMangaError,
+  setMangaFilter,
+} = mangaSlice.actions;
 
 export default mangaSlice.reducer;
 
@@ -155,3 +169,4 @@ export default mangaSlice.reducer;
 export const selectMangas = (state: RootState) => state.manga.mangas;
 export const selectMangaLoading = (state: RootState) => state.manga.isLoading;
 export const selectMangaError = (state: RootState) => state.manga.error;
+export const selectMangaFilter = (state: RootState) => state.manga.filter;

@@ -1,5 +1,5 @@
 // src/store/animeSlice.ts
-import { createSlice, createAsyncThunk, createSelector } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import {
   addDoc,
@@ -20,14 +20,18 @@ const db = getFirestore();
 const COLLECTION = "media_items";
 const ITEM_TYPE_NAME = "anime";
 
+type Status = "completed" | "in-progress" | "archived";
+
 export const fetchAnimes = createAsyncThunk<
     AnimeManga[], 
-    void, 
+    Status,
     { rejectValue: string }
->("anime/fetchAnimes", async (_, { rejectWithValue }) => {
+>("anime/fetchAnimes", async (filter, { rejectWithValue }) => {
   try {
     const snapshot = await getDocs(
-        query(collection(db, COLLECTION), where("itemType", "==", ITEM_TYPE_NAME)),
+      query(collection(db, COLLECTION), 
+      where("itemType", "==", ITEM_TYPE_NAME),
+      where("status", "==", filter)),
     );
     return snapshot.docs.map((d) => ({
       id: d.id,
@@ -82,12 +86,14 @@ interface AnimeState {
   isLoading: boolean;
   animes: AnimeManga[];
   error: string | null;
+  filter: Status;
 }
 
 const initialState: AnimeState = {
   isLoading: false,
   animes: [],
   error: null,
+  filter: 'in-progress',
 };
 
 export const animeSlice = createSlice({
@@ -102,6 +108,9 @@ export const animeSlice = createSlice({
     },
     clearAnimeError: (state) => {
       state.error = null;
+    },
+    setAnimeFilter: (state, action: PayloadAction<Status>) => {
+      state.filter = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -147,7 +156,12 @@ export const animeSlice = createSlice({
   },
 });
 
-export const { animeAddedLocally, animeRemovedLocally, clearAnimeError } = animeSlice.actions;
+export const { 
+  animeAddedLocally, 
+  animeRemovedLocally, 
+  clearAnimeError,
+  setAnimeFilter,
+} = animeSlice.actions;
 
 export default animeSlice.reducer;
 
@@ -155,3 +169,4 @@ export default animeSlice.reducer;
 export const selectAnimes = (state: RootState) => state.anime.animes;
 export const selectAnimeLoading = (state: RootState) => state.anime.isLoading;
 export const selectAnimeError = (state: RootState) => state.anime.error;
+export const selectAnimeFilter = (state: RootState) => state.anime.filter;
