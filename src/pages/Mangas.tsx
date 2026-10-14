@@ -2,32 +2,29 @@ import * as React from 'react';
 import {Text, View, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ActivityIndicator, useTheme } from 'react-native-paper';
+import { useSelector, useDispatch } from 'react-redux';
+import type { AppDispatch } from '../store/store';
+import { 
+    addManga,
+    deleteManga,
+    editManga,
+    fetchMangas,
+    selectMangaLoading,
+    selectMangas 
+} from '../store/mangaSlice';
+
+
 import Fab from '../components/Fab';
 import CardItem from '../components/CardItem';
-import { useSelector, useDispatch } from 'react-redux';
-import { addManga, deleteManga, editManga, fetchMangas, selectMangaLoading, selectMangas } from '../store/mangaSlice';
-
 import CustomModal from '../components/CustomModal';
 import CustomForm from '../components/CustomForm';
 import CustomDialog from '../components/CustomDialog';
+import ListHeader from '../components/ListHeader';
+import ListFooter from '../components/ListFooter';
+import EmptyList from '../components/EmptyList';
+
 import { AnimeManga, AnimeMangaInput } from '../types/migoTypes';
-import type { AppDispatch } from '../store/store';
 
-const ListHeader = ({listCount}:any):React.ReactElement => {
-    return(
-        <View style={{height: 50, width: '100%', justifyContent: 'center', alignItems: 'flex-end'}}>
-            <Text style={{color: 'white'}}>{listCount} {listCount === 1 ? 'Manga' : 'Mangas'}</Text>
-        </View>
-    );
-};
-
-const ListFooter = ():React.ReactElement => {
-    return(
-        <View style={{height: 70, width: '100%', justifyContent: 'center', alignItems: 'center'}}>
-            <Text style={{color: 'white'}}>Migo</Text>
-        </View>
-    );
-};
 
 const Mangas = ():React.ReactElement => {
     const paperTheme = useTheme();
@@ -95,11 +92,12 @@ const Mangas = ():React.ReactElement => {
     return(
         <SafeAreaView style={{flex: 1, padding: 10 }}>
             <FlatList
-                ListHeaderComponent={<ListHeader listCount={mangas.length}/>}
+                ListHeaderComponent={<ListHeader listType='manga' listCount={mangas.length} />}
                 data={mangas}
                 renderItem={({ item }) => <CardItem type={item.itemType} item={item} handleEdit={handleEdit} handleDelete={handleDelete}/>}
                 keyExtractor={item => item.id.toString()}
-                ListFooterComponent={<ListFooter />}
+                ListFooterComponent={<ListFooter listCount={mangas.length} />}
+                ListEmptyComponent={<EmptyList />}
             />
 
             <CustomModal visible={visibleModal} hideModal={hideModal}>
