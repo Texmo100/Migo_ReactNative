@@ -1,8 +1,10 @@
 import * as React from 'react';
-import { View } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { Button, Card, Text, Chip, Divider } from 'react-native-paper';
 
 import { Genre } from '../types/migoTypes';
+
+import { migoDarkTheme } from '../assets/themes/migoDarkTheme';
 
 interface Props {
   type: string;
@@ -26,69 +28,74 @@ const CardItem = ({type, item, handleEdit, handleDelete}: Props):React.ReactElem
   };
 
   return(
-    <Card style={{ marginBottom: 10 }} onPress={toggleShowActions}>
-      <Card.Content>
-        <Text variant="displaySmall" style={{textTransform: 'capitalize'}}>{item.title}</Text>
-        
-        <Divider />
-
-        <View style={{ display: 'flex', flexDirection: 'row', marginBottom: 5, marginTop: 5}}>
-            <Text variant='labelLarge' style={{marginRight: 5}}>Episodes:</Text>
-            <Text variant='bodyMedium'>{item.episodes}</Text>
+    <Card style={styles.cardWrapper} onPress={toggleShowActions}>
+      <View style={styles.cardHeader}>
+        <View style={styles.headerWrapper}>
+          <Text variant='headlineMedium' style={styles.headerTitle}>{item.title}</Text>
         </View>
-        
-        <View style={{ display: 'flex', flexDirection: 'row', marginBottom: 5}}>
-          <Text variant='labelLarge' style={{marginRight: 5}}>{type === 'anime' ? 'Seasons:' : 'Volumes:'}</Text>
-          <Text variant='bodyMedium'>{item.seasonsVolumes}</Text>
+        <View style={styles.ratingBox}>
+          <Text variant='titleLarge'>{item.score}</Text>
         </View>
-        
-        <View style={{ display: 'flex', flexDirection: 'row', marginBottom: 5}}>
-            <Text variant='labelLarge' style={{marginRight: 5}}>Status:</Text>
-            <Text variant='bodyMedium' style={{textTransform: 'capitalize'}}>{item.status}</Text>
+      </View>
+      <Divider />
+      <View style={styles.cardContent}>
+        <View style={styles.eVWrapper}>
+          <View style={styles.eVItem}>
+            <Text variant='bodyMedium' style={styles.eVItemText}>Episodes</Text>
+            <Chip mode='outlined'>{item.episodes}</Chip>
+          </View>
+          <View style={styles.eVItem}>
+            <Text variant='bodyMedium' style={styles.eVItemText}>Volumes</Text>
+            <Chip mode='outlined'>{item.seasonsVolumes}</Chip>
+          </View>
         </View>
-
-        <View style={{ display: 'flex', flexDirection: 'row', marginBottom: 5}}>
-            <Text variant='labelLarge' style={{marginRight: 5}}>Score:</Text>
-            <Text variant='bodyMedium'>{item.score}</Text>
-        </View>
-
-        <Text variant='labelLarge' style={{marginBottom: 5}}>Genres:</Text>
-        <View style={{ display: 'flex', flexWrap: 'wrap', flexDirection: 'row', gap: 5, marginBottom: 10 }}>
-            {
-              item.genres.map((genre:Genre) => (<Chip key={genre.id} mode='outlined'>{genre.name}</Chip>))
-            }
-        </View>
-
-        <Text variant='labelLarge' style={{marginBottom: 5}}>Demographic:</Text>
-        <View style={{ display: 'flex', flexWrap: 'wrap', flexDirection: 'row', gap: 5, marginBottom: 10 }}>
-          <Chip mode='flat'>{item.demographic.name}</Chip>
-        </View>
-
-        <Divider />
-
-        <View style={{ display: 'flex', flexDirection: 'row', marginTop: 5, marginBottom: 5 }}>
-            <Text variant='labelLarge' style={{marginRight: 5}}>Added at:</Text>
-            <Text variant='bodyMedium'>{item.addedAt}</Text>
-        </View>
-        
-        <View style={{ display: 'flex', flexDirection: 'row', marginBottom: 20 }}>
-            <Text variant='labelLarge' style={{marginRight: 5}}>Last Update:</Text>
-            <Text variant='bodyMedium'>{item.lastUpdate}</Text>
-        </View>
-
-        </Card.Content>
-        {
-          showActions
-          &&
-          (
-            <Card.Actions>
-              <Button onPress={() => cardHandleEditButton()}>Edit</Button>
-              <Button onPress={() => cardHandleDeleteButton()}>Delete</Button>
-            </Card.Actions>
-          )
-        }
+      </View>
     </Card>
-    );
+  );
 };
+
+const styles = StyleSheet.create({
+  cardWrapper: {
+    padding: 10,
+    marginBottom: 10,
+  },
+  cardHeader: {
+    width: '100%',
+    height: 'auto',
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 10,
+  },
+  headerWrapper: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  headerTitle: {
+    textTransform: 'capitalize',
+  },
+  ratingBox: {
+    width: 80,
+    height: 80,
+    backgroundColor: migoDarkTheme.colors.onPrimary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 10,
+  },
+  cardContent: {
+    flex: 1,
+  },
+  eVWrapper: {
+    flexDirection: 'row',
+    marginTop: 10,
+  },
+  eVItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  eVItemText: {
+    marginRight: 10,
+  },
+});
 
 export default CardItem;
