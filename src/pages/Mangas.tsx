@@ -90,7 +90,7 @@ const Mangas = ():React.ReactElement => {
     }
 
     return(
-        <SafeAreaView style={{flex: 1, paddingLeft: 10, paddingRight: 10 }}>
+        <View style={{flex: 1, paddingLeft: 10, paddingRight: 10 }}>
             <FlatList
                 ListHeaderComponent={<ListHeader listType='manga' listCount={mangas.length} />}
                 data={mangas}
@@ -114,7 +114,7 @@ const Mangas = ():React.ReactElement => {
             <CustomDialog visible={visibleDialog} hideDialog={hideDialog} onAction={handleConfirmDelete} type="manga" itemToDelete={deletingManga} />
 
             <Fab onPressFunction={() => handleCreate()}/>
-        </SafeAreaView>
+        </View>
     );
 };
 

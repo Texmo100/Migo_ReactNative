@@ -14,6 +14,7 @@ const RootTabs = ():React.ReactElement => {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
+        title: 'MIGO',
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
 
