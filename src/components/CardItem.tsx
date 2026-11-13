@@ -44,7 +44,7 @@ const CardItem = ({type, item, handleEdit, handleDelete}: Props):React.ReactElem
           <Chip mode='outlined' style={styles.basicInfoChip}>{item.episodes}</Chip>
         </View>
         <View style={styles.basicInfoItem}>
-          <Text variant="bodyLarge" style={styles.basicInfoText}>Volumes</Text>
+          <Text variant="bodyLarge" style={styles.basicInfoText}>{type === 'anime' ? 'Seasons:' : 'Volumes:'}</Text>
           <Chip mode='outlined' style={styles.basicInfoChip}>{item.seasonsVolumes}</Chip>
         </View>
       </View>
@@ -130,20 +130,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   basicInfoWrapper: {
-    flexDirection: 'row',
     marginTop: 10,
   },
   basicInfoItem: {
-    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    marginRight: 10,
+    marginBottom: 10,
   },
   basicInfoText: {
     marginRight: 10,
   },
   basicInfoChip: {
-    flex: 1,
     borderRadius: 50,
   },
   detailInfoWrapper: {
