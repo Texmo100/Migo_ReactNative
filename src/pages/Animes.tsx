@@ -34,12 +34,19 @@ const Animes = ():React.ReactElement => {
     const [visibleDialog, setVisibleDialog] = React.useState(false);
     const [editingAnime, setEditingAnime] = React.useState<any | null>(null);
     const [deletingAnime, setDeletingAnime] = React.useState<any | null>(null);
+    const [refreshing, setRefreshing] = React.useState(false);
     const animes = useSelector(selectAnimes);
     const dispatch = useDispatch<AppDispatch>();
 
     React.useEffect(() => {
         dispatch(fetchAnimes(animeFilter));
     }, [dispatch, animeFilter]);
+
+    const onRefresh = React.useCallback(() => {
+        setRefreshing(true);
+        dispatch(fetchAnimes(animeFilter));
+        setRefreshing(false);
+    }, []);
 
     const showModal = () => setVisibleModal(true);
     const hideModal = () => setVisibleModal(false);
@@ -98,6 +105,8 @@ const Animes = ():React.ReactElement => {
                 keyExtractor={item => item.id.toString()}
                 ListFooterComponent={<ListFooter listCount={animes.length} />}
                 ListEmptyComponent={<EmptyList />}
+                refreshing={refreshing}
+                onRefresh={onRefresh}
             />
 
             <CustomModal visible={visibleModal} hideModal={hideModal}>

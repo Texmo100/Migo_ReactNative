@@ -34,12 +34,19 @@ const Mangas = ():React.ReactElement => {
     const [visibleDialog, setVisibleDialog] = React.useState(false);
     const [editingManga, setEditingManga] = React.useState<any | null>(null);
     const [deletingManga, setDeletingManga] = React.useState<any | null>(null);
+    const [refreshing, setRefreshing] = React.useState(false);
     const mangas = useSelector(selectMangas);
     const dispatch = useDispatch<AppDispatch>();
 
     React.useEffect(() => {
         dispatch(fetchMangas(mangaFilter));
     }, [dispatch, mangaFilter]);
+
+    const onRefresh = React.useCallback(() => {
+        setRefreshing(true);
+        dispatch(fetchMangas(mangaFilter));
+        setRefreshing(false);
+    }, []);
 
     const showModal = () => setVisibleModal(true);
     const hideModal = () => setVisibleModal(false);
@@ -98,6 +105,8 @@ const Mangas = ():React.ReactElement => {
                 keyExtractor={item => item.id.toString()}
                 ListFooterComponent={<ListFooter listCount={mangas.length} />}
                 ListEmptyComponent={<EmptyList />}
+                refreshing={refreshing}
+                onRefresh={onRefresh}
             />
 
             <CustomModal visible={visibleModal} hideModal={hideModal}>

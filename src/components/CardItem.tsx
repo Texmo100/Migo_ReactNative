@@ -1,8 +1,10 @@
 import * as React from 'react';
-import { View } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { Button, Card, Text, Chip, Divider } from 'react-native-paper';
 
 import { Genre } from '../types/migoTypes';
+
+import { migoDarkTheme } from '../assets/themes/migoDarkTheme';
 
 interface Props {
   type: string;
@@ -26,69 +28,155 @@ const CardItem = ({type, item, handleEdit, handleDelete}: Props):React.ReactElem
   };
 
   return(
-    <Card style={{ marginBottom: 10 }} onPress={toggleShowActions}>
-      <Card.Content>
-        <Text variant="displaySmall" style={{textTransform: 'capitalize'}}>{item.title}</Text>
-        
-        <Divider />
-
-        <View style={{ display: 'flex', flexDirection: 'row', marginBottom: 5, marginTop: 5}}>
-            <Text variant='labelLarge' style={{marginRight: 5}}>Episodes:</Text>
-            <Text variant='bodyMedium'>{item.episodes}</Text>
+    <Card style={styles.cardWrapper} onPress={toggleShowActions}>
+      <View style={styles.cardHeaderWrapper}>
+        <View style={styles.titleWrapper}>
+          <Text variant="headlineLarge" style={styles.title}>{item.title}</Text>
         </View>
-        
-        <View style={{ display: 'flex', flexDirection: 'row', marginBottom: 5}}>
-          <Text variant='labelLarge' style={{marginRight: 5}}>{type === 'anime' ? 'Seasons:' : 'Volumes:'}</Text>
-          <Text variant='bodyMedium'>{item.seasonsVolumes}</Text>
+        <View style={styles.ratingWrapper}>
+          <Text variant="bodyLarge">{item.score}</Text>
         </View>
-        
-        <View style={{ display: 'flex', flexDirection: 'row', marginBottom: 5}}>
-            <Text variant='labelLarge' style={{marginRight: 5}}>Status:</Text>
-            <Text variant='bodyMedium' style={{textTransform: 'capitalize'}}>{item.status}</Text>
+      </View>
+      <Divider />
+      <View style={styles.basicInfoWrapper}>
+        <View style={styles.basicInfoItem}>
+          <Text variant="bodyLarge" style={styles.basicInfoText}>Episodes</Text>
+          <Chip mode='outlined' style={styles.basicInfoChip}>{item.episodes}</Chip>
         </View>
-
-        <View style={{ display: 'flex', flexDirection: 'row', marginBottom: 5}}>
-            <Text variant='labelLarge' style={{marginRight: 5}}>Score:</Text>
-            <Text variant='bodyMedium'>{item.score}</Text>
+        <View style={styles.basicInfoItem}>
+          <Text variant="bodyLarge" style={styles.basicInfoText}>Volumes</Text>
+          <Chip mode='outlined' style={styles.basicInfoChip}>{item.seasonsVolumes}</Chip>
         </View>
-
-        <Text variant='labelLarge' style={{marginBottom: 5}}>Genres:</Text>
-        <View style={{ display: 'flex', flexWrap: 'wrap', flexDirection: 'row', gap: 5, marginBottom: 10 }}>
-            {
-              item.genres.map((genre:Genre) => (<Chip key={genre.id} mode='outlined'>{genre.name}</Chip>))
-            }
-        </View>
-
-        <Text variant='labelLarge' style={{marginBottom: 5}}>Demographic:</Text>
-        <View style={{ display: 'flex', flexWrap: 'wrap', flexDirection: 'row', gap: 5, marginBottom: 10 }}>
-          <Chip mode='flat'>{item.demographic.name}</Chip>
-        </View>
-
-        <Divider />
-
-        <View style={{ display: 'flex', flexDirection: 'row', marginTop: 5, marginBottom: 5 }}>
-            <Text variant='labelLarge' style={{marginRight: 5}}>Added at:</Text>
-            <Text variant='bodyMedium'>{item.addedAt}</Text>
-        </View>
-        
-        <View style={{ display: 'flex', flexDirection: 'row', marginBottom: 20 }}>
-            <Text variant='labelLarge' style={{marginRight: 5}}>Last Update:</Text>
-            <Text variant='bodyMedium'>{item.lastUpdate}</Text>
-        </View>
-
-        </Card.Content>
-        {
-          showActions
-          &&
-          (
+      </View>
+      {
+        showActions
+        && 
+        (
+          <React.Fragment>
+            <View style={styles.detailInfoWrapper}>
+              <View style={styles.detailInfoItemWrapper}>
+                <Text variant="bodyLarge" style={styles.detailInfoItemTitle}>Genres</Text>
+                <View style={styles.detailInfoItemContent}>
+                  {
+                    item.genres.map((genre:Genre) => 
+                      (
+                        <Chip
+                            key={genre.id}
+                            mode='outlined'
+                            style={[styles.detailInfoItemChip, styles.genreChip]}
+                          >
+                            {genre.name}
+                        </Chip>
+                      ))
+                  }
+                </View>
+              </View>
+              <View style={styles.detailInfoItemWrapper}>
+                <Text variant="bodyLarge" style={styles.detailInfoItemTitle}>Demographic</Text>
+                <View style={styles.detailInfoItemContent}>
+                  <Chip mode='outlined' style={[styles.detailInfoItemChip, styles.demographicChip]}>
+                    {item.demographic.name}
+                  </Chip>
+                </View>
+              </View>
+              <View style={styles.detailInfoItemWrapper}>
+                <Text variant="bodyLarge" style={styles.detailInfoItemTitle}>Status</Text>
+                <View style={styles.detailInfoItemContent}>
+                  <Chip mode='flat' style={styles.detailInfoItemChip} textStyle={{color: 'white'}}>
+                    {item.status}
+                  </Chip>
+                </View>
+              </View>
+            </View>
+            <Divider />
+            <View style={styles.historyDatesWrapper}>
+              <Text variant="bodyMedium" style={styles.historyItemDate}>Added at: {item.addedAt}</Text>
+              <Text variant="bodyMedium">Last Update: {item.lastUpdate}</Text>
+            </View>
             <Card.Actions>
               <Button onPress={() => cardHandleEditButton()}>Edit</Button>
               <Button onPress={() => cardHandleDeleteButton()}>Delete</Button>
             </Card.Actions>
-          )
-        }
+          </React.Fragment>
+        )
+      }
     </Card>
-    );
+  );
 };
+
+const styles = StyleSheet.create({
+  cardWrapper: {
+    marginBottom: 10,
+    padding: 10,
+  },
+  cardHeaderWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  titleWrapper: {
+    maxWidth: '75%',
+    justifyContent: 'center',
+  },
+  title: {
+    textTransform: 'capitalize',
+  },
+  ratingWrapper: {
+    width: 80,
+    height: 80,
+    backgroundColor: migoDarkTheme.colors.onPrimary,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  basicInfoWrapper: {
+    flexDirection: 'row',
+    marginTop: 10,
+  },
+  basicInfoItem: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  basicInfoText: {
+    marginRight: 10,
+  },
+  basicInfoChip: {
+    flex: 1,
+    borderRadius: 50,
+  },
+  detailInfoWrapper: {
+    flex: 1,
+  },
+  detailInfoItemWrapper: {
+    flex: 1,
+  },
+  detailInfoItemTitle: {
+    marginBottom: 10,
+  },
+  detailInfoItemContent: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  detailInfoItemChip: {
+    borderRadius: 50,
+    marginRight: 10,
+    marginBottom: 10,
+  },
+  genreChip: {
+    borderColor: migoDarkTheme.colors.primary,
+  },
+  demographicChip: {
+    borderColor: migoDarkTheme.colors.secondaryContainer,
+  },
+  historyDatesWrapper: {
+    marginTop: 10,
+    flexDirection: 'row',
+  },
+  historyItemDate: {
+    marginRight: 10,
+  }
+});
 
 export default CardItem;
