@@ -44,7 +44,7 @@ const CardItem = ({type, item, handleEdit, handleDelete}: Props):React.ReactElem
           <Chip mode='outlined' style={styles.basicInfoChip}>{item.episodes}</Chip>
         </View>
         <View style={styles.basicInfoItem}>
-          <Text variant="bodyLarge" style={styles.basicInfoText}>{type === 'anime' ? 'Seasons:' : 'Volumes:'}</Text>
+          <Text variant="bodyLarge" style={styles.basicInfoText}>{type === 'anime' ? 'Seasons' : 'Volumes'}</Text>
           <Chip mode='outlined' style={styles.basicInfoChip}>{item.seasonsVolumes}</Chip>
         </View>
       </View>
