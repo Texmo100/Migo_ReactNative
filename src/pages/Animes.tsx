@@ -42,11 +42,14 @@ const Animes = ():React.ReactElement => {
         dispatch(fetchAnimes(animeFilter));
     }, [dispatch, animeFilter]);
 
-    const onRefresh = React.useCallback(() => {
+    const onRefresh = React.useCallback(async () => {
         setRefreshing(true);
-        dispatch(fetchAnimes(animeFilter));
-        setRefreshing(false);
-    }, []);
+        try {
+            await dispatch(fetchAnimes(animeFilter));
+        } finally {
+            setRefreshing(false);
+        }
+    }, [animeFilter]);
 
     const showModal = () => setVisibleModal(true);
     const hideModal = () => setVisibleModal(false);

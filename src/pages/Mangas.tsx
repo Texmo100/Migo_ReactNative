@@ -42,11 +42,14 @@ const Mangas = ():React.ReactElement => {
         dispatch(fetchMangas(mangaFilter));
     }, [dispatch, mangaFilter]);
 
-    const onRefresh = React.useCallback(() => {
+    const onRefresh = React.useCallback(async () => {
         setRefreshing(true);
-        dispatch(fetchMangas(mangaFilter));
-        setRefreshing(false);
-    }, []);
+        try {
+            await dispatch(fetchMangas(mangaFilter));
+        } finally {
+            setRefreshing(false);
+        }
+    }, [mangaFilter]);
 
     const showModal = () => setVisibleModal(true);
     const hideModal = () => setVisibleModal(false);
